@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-light py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <div class="bg-white rounded-3xl shadow-xl overflow-hidden fade-in-up">
+            <!-- Header/Cover -->
+            <div class="h-32 bg-gradient-to-r from-primary to-blue-600 relative">
+                <div class="absolute -bottom-16 left-8">
+                    <div class="w-32 h-32 rounded-full bg-white p-1 shadow-lg">
+                        <div
+                            class="w-full h-full rounded-full bg-slate-200 flex items-center justify-center text-4xl font-bold text-slate-500">
+                            {{ user.full_name|slice:":1" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-20 pb-8 px-8">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h1 class="text-3xl font-extrabold text-dark">{{ user.full_name }}</h1>
+                        <p class="text-slate-500">{{ user.email }}</p>
+                        <div
+                            class="mt-2 inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-primary text-sm font-bold">
+                            {{ user.category.name|default:"General User" }}
+                        </div>
+                    </div>
+                    <a href="{% url 'users:settings' %}"
+                        class="px-4 py-2 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors">
+                        Edit Profile
+                    </a>
+                </div>
+
+                <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Stats -->
+                    <div class="bg-slate-50 rounded-2xl p-6">
+                        <h3 class="text-lg font-bold text-dark mb-4">Account Stats</h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">Member Since</span>
+                                <span class="font-bold text-dark">{{ user.date_joined|date:"F Y" }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">Total Bookings</span>
+                                <span class="font-bold text-dark">{{ total_bookings }}</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-slate-500">Account Status</span>
+                                <span class="text-green-600 font-bold">Active</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Membership -->
+                    <div class="bg-gradient-to-br from-secondary to-green-600 rounded-2xl p-6 text-white">
+                        <h3 class="text-lg font-bold mb-4 opacity-90">Membership Status</h3>
+                        {% if active_membership %}
+                        <div class="text-center py-4">
+                            <h4 class="text-2xl font-black">{{ active_membership.membership_tier.name }}</h4>
+                            <p class="text-green-100 text-sm mt-1">Valid until {{ active_membership.end_date|date:"F d, Y" }}</p>
+                            <div class="mt-4 inline-block px-3 py-1 bg-white/20 rounded-lg text-sm font-medium">
+                                {{ active_membership.membership_tier.discount_percentage|floatformat:0|cut:"-" }}%
+                                Discount Active
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="text-center py-6">
+                            <p class="text-green-100 mb-4">No active membership</p>
+                            <a href="{% url 'tariff' %}"
+                                class="px-6 py-2 bg-white text-secondary font-bold rounded-lg hover:bg-green-50 transition-colors">
+                                Get Membership
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

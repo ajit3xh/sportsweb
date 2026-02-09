@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="glass-card">
+            <h3 class="card-header text-center border-0">Secure Payment</h3>
+            <div class="card-body">
+                <div class="alert alert-success bg-transparent border-success text-success">
+                    <h5 class="mb-0">Amount Due: ${{ booking.payment_set.first.amount }}</h5>
+                </div>
+                <p>Booking ID: #{{ booking.id }}</p>
+                <p>Facility: {{ booking.facility.facility_name }}</p>
+                <hr style="border-color: rgba(255,255,255,0.2);">
+                <form method="post">
+                    {% csrf_token %}
+                    <!-- In a real system, card details would be input here -->
+                    <div class="mb-3">
+                        <label class="form-label">Card Number</label>
+                        <input type="text" class="form-control" placeholder="**** **** **** 1234" disabled
+                            style="background: rgba(0,0,0,0.2);">
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success btn-lg">Pay Now (Mock)</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

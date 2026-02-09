@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="bg-light min-h-screen py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="mb-8 fade-in-up">
+            <h1 class="text-3xl font-extrabold text-dark">Facility <span class="text-primary">Availability
+                    Calendar</span></h1>
+            <p class="text-slate-500 mt-2">View facility availability for the next 30 days</p>
+        </div>
+
+        <!-- Facility Selector -->
+        <div class="mb-8 fade-in-up">
+            <label class="block text-sm font-bold text-slate-700 mb-3">Select Facility</label>
+            <select id="facilitySelect"
+                class="w-full max-w-md px-4 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-sm">
+                {% for facility in facilities %}
+                <option value="{{ facility.id }}">{{ facility.facility_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Legend -->
+        <div class="mb-6 flex gap-6 items-center justify-center fade-in-up">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-green-500"></div>
+                <span class="text-sm font-medium text-slate-600">Available</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-red-500"></div>
+                <span class="text-sm font-medium text-slate-600">Booked</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-slate-200"></div>
+                <span class="text-sm font-medium text-slate-600">Past Date</span>
+            </div>
+        </div>
+
+        <!-- Calendar Grid -->
+        <div class="bg-white rounded-3xl shadow-xl p-8 border border-slate-100 fade-in-up" id="calendarContainer">
+            <div class="grid grid-cols-7 gap-4 mb-4 text-center font-bold text-slate-600">
+                <div>Sun</div>
+                <div>Mon</div>
+                <div>Tue</div>
+                <div>Wed</div>
+                <div>Thu</div>
+                <div>Fri</div>
+                <div>Sat</div>
+            </div>
+            <div class="grid grid-cols-7 gap-4" id="calendarDays">
+                <!-- Calendar days will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Day Details Modal (hidden by default) -->
+        <div id="dayModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm hidden items-center justify-center z-50"
+            onclick="closeDayModal(event)">
+            <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 p-8" onclick="event.stopPropagation()">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-2xl font-bold text-dark" id="modalDate"></h3>
+                    <button onclick="closeDayModal()" class="text-slate-400 hover:text-dark transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div id="modalContent" class="space-y-3">
+                    <!-- Slot details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const today = new Date('{{ today|date:"Y-m-d" }}');
+    const bookingsData = {{ bookings_json| safe }};
+    let selectedFacility = document.getElementById('facilitySelect').value;
+
+    document.getElementById('facilitySelect').addEventListener('change', (e) => {
+        selectedFacility = e.target.value;
+        renderCalendar();
+    });
+
+    function renderCalendar() {
+        const calendarDays = document.getElementById('calendarDays');
+        calendarDays.innerHTML = '';
+
+        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+        // Add empty cells for days before the first day of the month
+        for (let i = 0; i < firstDay.getDay(); i++) {
+            const emptyDay = document.createElement('div');
+            calendarDays.appendChild(emptyDay);
+        }
+
+        // Render each day of the month
+        for (let date = 1; date <= lastDay.getDate(); date++) {
+            const currentDate = new Date(today.getFullYear(), today.getMonth(), date);
+            const dateStr = currentDate.toISOString().split('T')[0];
+
+            const dayDiv = document.createElement('div');
+            dayDiv.className = 'aspect-square rounded-xl p-3 cursor-pointer transition-all hover:scale-105 flex flex-col items-center justify-center';
+
+            // Check if date is in the past
+            if (currentDate < new Date(today.toDateString())) {
+                dayDiv.className += ' bg-slate-100 text-slate-400 cursor-not-allowed';
+            } else {
+                // Check bookings for this date and facility
+                const bookingsForDay = getBookingsForDate(dateStr, selectedFacility);
+                const totalSlots = {{ total_slots }
+            };
+            const bookedSlots = bookingsForDay.length;
+
+            if (bookedSlots >= totalSlots) {
+                dayDiv.className += ' bg-red-500 text-white shadow-lg';
+            } else if (bookedSlots > 0) {
+                dayDiv.className += ' bg-yellow-400 text-white shadow-lg';
+            } else {
+                dayDiv.className += ' bg-green-500 text-white shadow-lg hover:shadow-xl';
+            }
+
+            dayDiv.onclick = () => showDayDetails(dateStr, bookingsForDay);
+        }
+
+        dayDiv.innerHTML = `
+                <span class="text-2xl font-bold">${date}</span>
+                ${currentDate >= new Date(today.toDateString()) ?
+                `<span class="text-xs mt-1">${getBookingsForDate(dateStr, selectedFacility).length}/${totalSlots}</span>`
+                : ''}
+            `;
+
+        calendarDays.appendChild(dayDiv);
+    }
+    }
+
+    function getBookingsForDate(date, facilityId) {
+        return bookingsData.filter(b => b.date === date && b.facility_id == facilityId);
+    }
+
+    function showDayDetails(dateStr, bookings) {
+        const modal = document.getElementById('dayModal');
+        const modalDate = document.getElementById('modalDate');
+        const modalContent = document.getElementById('modalContent');
+
+        const date = new Date(dateStr);
+        modalDate.textContent = date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        // Get all slots for the facility
+        const facilityName = document.getElementById('facilitySelect').selectedOptions[0].text;
+
+        modalContent.innerHTML = `
+        <p class="text-lg font-semibold text-dark mb-4">Available Slots for ${facilityName}</p>
+        <div class="space-y-2">
+            {% for slot in slots %}
+            <div class="flex justify-between items-center p-3 rounded-lg border border-slate-200 hover:border-primary transition-colors" id="slot-${dateStr}-{{ slot.id }}">
+                <span class="font-medium">{{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }} ({{ slot.session|title }})</span>
+                <span class="slot-status"></span>
+            </div>
+            {% endfor %}
+        </div>
+        <a href="{% url 'facilities:book' 0 %}" class="mt-6 block text-center py-3 px-6 bg-primary text-white rounded-xl font-bold hover:bg-blue-700 transition-colors">
+            Book This Facility
+        </a>
+    `;
+
+        // Mark booked slots
+        bookings.forEach(booking => {
+            const slotEl = document.getElementById(`slot-${dateStr}-${booking.slot_id}`);
+            if (slotEl) {
+                const statusSpan = slotEl.querySelector('.slot-status');
+                statusSpan.innerHTML = '<span class="text-xs bg-red-500 text-white px-2 py-1 rounded-full">Booked</span>';
+                slotEl.classList.add('bg-red-50', 'opacity-50');
+            }
+        });
+
+        // Update book link with selected facility
+        const bookLink = modalContent.querySelector('a');
+        bookLink.href = bookLink.href.replace('/0/', `/${selectedFacility}/`);
+
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
+
+    function closeDayModal(event) {
+        const modal = document.getElementById('dayModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }
+
+    // Initial render
+    renderCalendar();
+</script>
+{% endblock %}

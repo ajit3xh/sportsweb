@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="min-h-screen bg-light py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-center mb-10 fade-in-up">
+            <div>
+                <h2 class="text-3xl font-extrabold text-dark">My Bookings</h2>
+                <p class="text-slate-500 mt-1">Manage and view your facility reservations</p>
+            </div>
+            <div class="mt-4 md:mt-0 flex gap-4">
+                <a href="{% url 'users:dashboard' %}"
+                    class="px-5 py-2.5 rounded-xl bg-white text-slate-600 font-bold border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm">
+                    Back to Dashboard
+                </a>
+                <a href="{% url 'facilities:list' %}"
+                    class="px-5 py-2.5 rounded-xl bg-primary text-white font-bold shadow-lg hover:bg-blue-700 transition-all hover:shadow-xl">
+                    + New Booking
+                </a>
+            </div>
+        </div>
+
+        <!-- Bookings List -->
+        <div class="space-y-4 fade-in-up" style="animation-delay: 0.1s;">
+            {% for booking in bookings %}
+            <div
+                class="bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-md transition-all flex flex-col md:flex-row items-center gap-6">
+
+                <!-- Date/Time Box -->
+                <div
+                    class="flex-shrink-0 flex flex-col items-center justify-center w-full md:w-24 h-24 bg-blue-50 rounded-xl text-primary border border-blue-100">
+                    <span class="text-xs font-bold uppercase">{{ booking.booking_date|date:"M" }}</span>
+                    <span class="text-3xl font-black leading-none">{{ booking.booking_date|date:"d" }}</span>
+                    <span class="text-xs text-slate-500">{{ booking.booking_date|date:"D" }}</span>
+                </div>
+
+                <!-- Info -->
+                <div class="flex-grow text-center md:text-left space-y-1">
+                    <h3 class="text-xl font-bold text-dark">{{ booking.facility.facility_name }}</h3>
+                    <div class="flex flex-col md:flex-row items-center gap-2 text-slate-500 text-sm">
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ booking.slot }}
+                        </span>
+                        <span class="hidden md:inline">•</span>
+                        <span>Reference: #{{ booking.id }}</span>
+                    </div>
+                </div>
+
+                <!-- Status & Action -->
+                <div class="flex items-center gap-4">
+                    <span class="px-4 py-2 rounded-full text-sm font-bold 
+                        {% if booking.status == 'approved' or booking.status == 'active' %}bg-green-100 text-green-700
+                        {% elif booking.status == 'pending' %}bg-yellow-100 text-yellow-700
+                        {% elif booking.status == 'cancelled' %}bg-red-100 text-red-700
+                        {% else %}bg-slate-100 text-slate-600{% endif %}">
+                        {{ booking.status|title }}
+                    </span>
+
+                    {% if booking.status == 'active' or booking.status == 'approved' %}
+                    <div class="hidden md:block">
+                        <span class="text-xs text-green-600 font-semibold flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Paid
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
+                <div class="w-20 h-20 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-10 h-10 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-bold text-dark mb-2">No Bookings Found</h3>
+                <p class="text-slate-500 mb-6">You haven't booked any facilities yet.</p>
+                <a href="{% url 'facilities:list' %}"
+                    class="px-6 py-3 bg-primary text-white font-bold rounded-xl shadow-lg hover:scale-105 transition-all">
+                    Start Booking
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
