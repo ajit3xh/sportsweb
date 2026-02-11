@@ -11,7 +11,7 @@ def admin_dashboard(request):
     from users.models import User
     
     # Metrics
-    pending_bookings = Booking.objects.filter(status='pending').order_by('created_at')
+    active_bookings_list = Booking.objects.filter(status='active').order_by('-booking_date', 'slot__start_time')
     total_bookings = Booking.objects.count()
     active_bookings = Booking.objects.filter(status='active').count()
     facilities = Facility.objects.all()
@@ -22,7 +22,7 @@ def admin_dashboard(request):
     total_revenue = active_bookings * 500  # Placeholder calculation
     
     return render(request, 'admin/dashboard.html', {
-        'pending_bookings': pending_bookings,
+        'active_bookings_list': active_bookings_list,
         'facilities': facilities,
         'total_bookings': total_bookings,
         'active_bookings': active_bookings,

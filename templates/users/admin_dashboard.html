@@ -9,10 +9,10 @@
 </div>
 
 <div class="row">
-    <!-- Pending Bookings Queue -->
+    <!-- Active Bookings -->
     <div class="col-lg-8">
         <div class="glass-card">
-            <h3 class="mb-3 text-warning"><i class="bi bi-clock-history"></i> Pending Approvals (FCFS)</h3>
+            <h3 class="mb-3 text-success"><i class="bi bi-check-circle"></i> Active Bookings</h3>
             <div class="table-responsive">
                 <table class="table table-dark table-hover table-borderless bg-transparent">
                     <thead>
@@ -21,30 +21,25 @@
                             <th>User</th>
                             <th>Category</th>
                             <th>Facility</th>
+                            <th>Date</th>
                             <th>Slot</th>
-                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for booking in pending_bookings %}
+                        {% for booking in active_bookings_list %}
                         <tr>
                             <td>{{ booking.id }}</td>
                             <td>{{ booking.user.full_name }}</td>
                             <td><span class="badge bg-info">{{ booking.user.category.name }}</span></td>
                             <td>{{ booking.facility.facility_name }}</td>
+                            <td>{{ booking.booking_date|date:"M d, Y" }}</td>
                             <td>{{ booking.slot }}</td>
-                            <td>
-                                <a href="{% url 'users:approve_booking' booking.id %}"
-                                    class="btn btn-success btn-sm rounded-pill px-3">Approve</a>
-                                <a href="{% url 'users:reject_booking' booking.id %}"
-                                    class="btn btn-danger btn-sm rounded-pill px-3">Reject</a>
-                            </td>
                         </tr>
                         {% empty %}
                         <tr>
                             <td colspan="6" class="text-center py-4 text-white-50">
                                 <i class="bi bi-check-circle display-4"></i><br>
-                                No pending bookings. All caught up!
+                                No active bookings yet!
                             </td>
                         </tr>
                         {% endfor %}

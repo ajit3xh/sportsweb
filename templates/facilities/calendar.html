@@ -38,15 +38,6 @@
 
         <!-- Calendar Grid -->
         <div class="bg-white rounded-3xl shadow-xl p-8 border border-slate-100 fade-in-up" id="calendarContainer">
-            <div class="grid grid-cols-7 gap-4 mb-4 text-center font-bold text-slate-600">
-                <div>Sun</div>
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
-            </div>
             <div class="grid grid-cols-7 gap-4" id="calendarDays">
                 <!-- Calendar days will be populated by JavaScript -->
             </div>
@@ -87,49 +78,67 @@
         const calendarDays = document.getElementById('calendarDays');
         calendarDays.innerHTML = '';
 
-        const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-        const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        const totalSlots = {{ total_slots }
+    };
+    let currentMonth = -1;
 
-        // Add empty cells for days before the first day of the month
-        for (let i = 0; i < firstDay.getDay(); i++) {
-            const emptyDay = document.createElement('div');
-            calendarDays.appendChild(emptyDay);
-        }
+    // Render 30 days starting from today
+    for (let i = 0; i < 30; i++) {
+        const currentDate = new Date(today);
+        currentDate.setDate(today.getDate() + i);
+        const dateStr = currentDate.toISOString().split('T')[0];
 
-        // Render each day of the month
-        for (let date = 1; date <= lastDay.getDate(); date++) {
-            const currentDate = new Date(today.getFullYear(), today.getMonth(), date);
-            const dateStr = currentDate.toISOString().split('T')[0];
+        // Add month header when month changes
+        if (currentDate.getMonth() !== currentMonth) {
+            currentMonth = currentDate.getMonth();
+            const monthHeader = document.createElement('div');
+            monthHeader.className = 'col-span-7 text-center font-bold text-xl text-dark mt-4 mb-2';
+            monthHeader.textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            calendarDays.appendChild(monthHeader);
 
-            const dayDiv = document.createElement('div');
-            dayDiv.className = 'aspect-square rounded-xl p-3 cursor-pointer transition-all hover:scale-105 flex flex-col items-center justify-center';
+            // Add day of week headers
+            const dayHeaders = document.createElement('div');
+            dayHeaders.className = 'col-span-7 grid grid-cols-7 gap-4 mb-2 text-center font-bold text-slate-600';
+            dayHeaders.innerHTML = `
+                    <div>Sun</div>
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div>Sat</div>
+                `;
+            calendarDays.appendChild(dayHeaders);
 
-            // Check if date is in the past
-            if (currentDate < new Date(today.toDateString())) {
-                dayDiv.className += ' bg-slate-100 text-slate-400 cursor-not-allowed';
-            } else {
-                // Check bookings for this date and facility
-                const bookingsForDay = getBookingsForDate(dateStr, selectedFacility);
-                const totalSlots = {{ total_slots }
-            };
-            const bookedSlots = bookingsForDay.length;
-
-            if (bookedSlots >= totalSlots) {
-                dayDiv.className += ' bg-red-500 text-white shadow-lg';
-            } else if (bookedSlots > 0) {
-                dayDiv.className += ' bg-yellow-400 text-white shadow-lg';
-            } else {
-                dayDiv.className += ' bg-green-500 text-white shadow-lg hover:shadow-xl';
+            // Add empty cells for alignment to proper day of week (only for first week of month)
+            if (i === 0 || currentDate.getDate() === 1) {
+                for (let j = 0; j < currentDate.getDay(); j++) {
+                    const emptyDay = document.createElement('div');
+                    calendarDays.appendChild(emptyDay);
+                }
             }
-
-            dayDiv.onclick = () => showDayDetails(dateStr, bookingsForDay);
         }
+
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'aspect-square rounded-xl p-3 cursor-pointer transition-all hover:scale-105 flex flex-col items-center justify-center';
+
+        // Check bookings for this date and facility
+        const bookingsForDay = getBookingsForDate(dateStr, selectedFacility);
+        const bookedSlots = bookingsForDay.length;
+
+        if (bookedSlots >= totalSlots) {
+            dayDiv.className += ' bg-red-500 text-white shadow-lg';
+        } else if (bookedSlots > 0) {
+            dayDiv.className += ' bg-yellow-400 text-white shadow-lg';
+        } else {
+            dayDiv.className += ' bg-green-500 text-white shadow-lg hover:shadow-xl';
+        }
+
+        dayDiv.onclick = () => showDayDetails(dateStr, bookingsForDay);
 
         dayDiv.innerHTML = `
-                <span class="text-2xl font-bold">${date}</span>
-                ${currentDate >= new Date(today.toDateString()) ?
-                `<span class="text-xs mt-1">${getBookingsForDate(dateStr, selectedFacility).length}/${totalSlots}</span>`
-                : ''}
+                <span class="text-2xl font-bold">${currentDate.getDate()}</span>
+                <span class="text-xs mt-1">${bookedSlots}/${totalSlots}</span>
             `;
 
         calendarDays.appendChild(dayDiv);
