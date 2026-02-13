@@ -1,21 +1,22 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="bg-light min-h-screen py-12">
+<div class="bg-light dark:bg-dark min-h-screen py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
         <!-- Header -->
         <div class="text-center mb-16 fade-in-up">
-            <h2 class="text-4xl font-extrabold text-dark tracking-tight mb-4">Our Facilities</h2>
-            <p class="text-lg text-slate-500 max-w-2xl mx-auto">Explore our world-class venues designed for professional
+            <h2 class="text-4xl font-extrabold text-dark dark:text-white tracking-tight mb-4">Our Facilities</h2>
+            <p class="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">Explore our world-class venues
+                designed for professional
                 athletes and enthusiasts alike.</p>
         </div>
 
         <!-- Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for facility in facilities %}
-            <div class="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-slate-100 fade-in-up"
-                style="animation-delay: {{ forloop.counter0|add:1 }}00ms;">
+            <div class="group bg-white dark:bg-slate-800 rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 border border-slate-100 dark:border-slate-700 fade-in-up"
+                style="animation-delay: {{ forloop.counter0|add:1 }}00ms">
                 <!-- Image Container -->
                 <div class="relative h-64 overflow-hidden">
                     {% if facility.image %}
@@ -23,7 +24,8 @@
                         class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                         alt="{{ facility.facility_name }}">
                     {% else %}
-                    <div class="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
+                    <div
+                        class="w-full h-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-300 dark:text-slate-600">
                         <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -57,7 +59,7 @@
                     </div>
 
                     <a href="{% url 'facilities:book' facility.id %}"
-                        class="block w-full py-3 rounded-xl bg-slate-50 text-dark font-bold text-center border border-slate-200 hover:bg-primary hover:text-white hover:border-transparent transition-all shadow-sm">
+                        class="block w-full py-3 rounded-xl bg-slate-50 dark:bg-slate-700 text-dark dark:text-white font-bold text-center border border-slate-200 dark:border-slate-600 hover:bg-primary hover:text-white hover:border-transparent transition-all shadow-sm">
                         Check Availability
                     </a>
                 </div>

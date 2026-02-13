@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Facility, TimeSlot, Booking, FacilityPricing, GalleryImage
+from .models import Facility, TimeSlot, Booking, FacilityPricing, GalleryImage, FacilityClosure
 
 class FacilityPricingInline(admin.TabularInline):
     model = FacilityPricing

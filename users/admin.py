@@ -1,6 +1,8 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Category, Membership, MembershipTier
+from .models import User, Category, MembershipTier, Membership
+from django.utils import timezone
+from datetime import timedelta
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):

@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-3xl shadow-xl border border-gray-100">
+        <div class="text-center">
+            <h2 class="text-3xl font-extrabold text-gray-900">Verify Your Account</h2>
+            <p class="mt-2 text-sm text-gray-600">
+                For demo purposes, please check your <strong>Terminal/Console</strong> for the OTPs.
+            </p>
+        </div>
+
+        <form method="post" class="mt-8 space-y-6">
+            {% csrf_token %}
+
+            {% if messages %}
+            <div class="mb-4">
+                {% for message in messages %}
+                <div
+                    class="p-3 text-sm rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="rounded-md shadow-sm space-y-4">
+                <div>
+                    <label for="mobile_otp" class="sr-only">Mobile OTP</label>
+                    <input id="mobile_otp" name="mobile_otp" type="text" required
+                        class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Enter Mobile OTP (Check Console)">
+                </div>
+                <div>
+                    <label for="aadhaar_otp" class="sr-only">Aadhaar OTP</label>
+                    <input id="aadhaar_otp" name="aadhaar_otp" type="text" required
+                        class="appearance-none rounded-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                        placeholder="Enter Aadhaar OTP (Check Console)">
+                </div>
+            </div>
+
+            <div>
+                <button type="submit"
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all shadow-lg hover:shadow-blue-500/30">
+                    Verify & Create Account
+                </button>
+            </div>
+
+            <div class="text-center text-xs text-gray-500">
+                <p>Did not receive OTP? Refresh page to resend (Check terminal).</p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -2,23 +2,24 @@
 {% load static %}
 
 {% block content %}
-<div class="min-h-screen bg-light py-12">
+<div class="min-h-screen bg-light dark:bg-dark py-12">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
 
-        <h2 class="text-3xl font-extrabold text-dark mb-8 fade-in-up">Account Settings</h2>
+        <h2 class="text-3xl font-extrabold text-dark dark:text-white mb-8 fade-in-up">Account Settings</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 fade-in-up" style="animation-delay: 0.1s;">
 
             <!-- Sidebar Navigation -->
             <div class="md:col-span-1">
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-4 sticky top-24">
+                <div
+                    class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 p-4 sticky top-24">
                     <nav class="space-y-1">
                         <a href="#general"
-                            class="block px-4 py-2 rounded-lg bg-blue-50 text-primary font-bold">General</a>
+                            class="block px-4 py-2 rounded-lg bg-blue-50 dark:bg-blue-900/30 text-primary font-bold">General</a>
                         <a href="#notifications"
-                            class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">Notifications</a>
+                            class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Notifications</a>
                         <a href="#security"
-                            class="block px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-colors">Security</a>
+                            class="block px-4 py-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">Security</a>
                     </nav>
                 </div>
             </div>
@@ -27,54 +28,60 @@
             <div class="md:col-span-2 space-y-6">
 
                 <!-- Profile Section -->
-                <div id="general" class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 scroll-mt-24">
-                    <h3 class="text-xl font-bold text-dark mb-6">Profile Information</h3>
+                <div id="general"
+                    class="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-700 scroll-mt-24">
+                    <h3 class="text-xl font-bold text-dark dark:text-white mb-6">Profile Information</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-slate-500 mb-2">Full Name</label>
+                            <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Full
+                                Name</label>
                             <input type="text" value="{{ user.full_name }}"
-                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-dark dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                 readonly>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-500 mb-2">Email Address</label>
+                            <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Email
+                                Address</label>
                             <input type="email" value="{{ user.email }}"
-                                class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-dark dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                                 readonly>
                         </div>
                         <div class="md:col-span-2">
                             <button
-                                class="px-6 py-2 bg-slate-100 text-slate-400 font-bold rounded-xl cursor-not-allowed">Save
+                                class="px-6 py-2 bg-slate-100 dark:bg-slate-700 text-slate-400 dark:text-slate-500 font-bold rounded-xl cursor-not-allowed">Save
                                 Changes (Demo)</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Notifications -->
-                <div id="notifications" class="bg-white rounded-2xl p-8 shadow-sm border border-slate-100 scroll-mt-24">
-                    <h3 class="text-xl font-bold text-dark mb-6">Notifications</h3>
+                <div id="notifications"
+                    class="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-700 scroll-mt-24">
+                    <h3 class="text-xl font-bold text-dark dark:text-white mb-6">Notifications</h3>
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
                             <div>
-                                <h4 class="font-bold text-dark">Email Alerts</h4>
-                                <p class="text-sm text-slate-500">Receive booking confirmations via email</p>
+                                <h4 class="font-bold text-dark dark:text-white">Email Alerts</h4>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Receive booking confirmations via
+                                    email</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" checked class="sr-only peer">
                                 <div
-                                    class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                    class="w-11 h-6 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
                                 </div>
                             </label>
                         </div>
                         <div class="flex items-center justify-between">
                             <div>
-                                <h4 class="font-bold text-dark">Promotional Offers</h4>
-                                <p class="text-sm text-slate-500">Receive updates about discounts and events</p>
+                                <h4 class="font-bold text-dark dark:text-white">Promotional Offers</h4>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Receive updates about discounts
+                                    and events</p>
                             </div>
                             <label class="relative inline-flex items-center cursor-pointer">
                                 <input type="checkbox" class="sr-only peer">
                                 <div
-                                    class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
+                                    class="w-11 h-6 bg-slate-200 dark:bg-slate-600 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary">
                                 </div>
                             </label>
                         </div>
@@ -82,12 +89,51 @@
                 </div>
 
                 <!-- Danger Zone -->
-                <div id="security" class="bg-red-50 rounded-2xl p-8 border border-red-100 scroll-mt-24">
-                    <h3 class="text-xl font-bold text-red-600 mb-2">Danger Zone</h3>
-                    <p class="text-sm text-red-500 mb-6">Once you delete your account, there is no going back. Please be
+                <!-- Security / Change Password -->
+                <div id="security"
+                    class="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-slate-100 dark:border-slate-700 scroll-mt-24">
+                    <h3 class="text-xl font-bold text-dark dark:text-white mb-6">Change Password</h3>
+                    <form method="POST" action="{% url 'users:change_password' %}" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Current
+                                Password</label>
+                            <input type="password" name="old_password" required
+                                class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-dark dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">New
+                                    Password</label>
+                                <input type="password" name="new_password" required
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-dark dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-slate-500 dark:text-slate-400 mb-2">Confirm
+                                    New
+                                    Password</label>
+                                <input type="password" name="confirm_password" required
+                                    class="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-dark dark:text-white focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all">
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                class="px-6 py-2 bg-primary text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30">
+                                Update Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Danger Zone -->
+                <div id="danger-zone"
+                    class="bg-red-50 dark:bg-red-900/10 rounded-2xl p-8 border border-red-100 dark:border-red-900/30 scroll-mt-24">
+                    <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-2">Danger Zone</h3>
+                    <p class="text-sm text-red-500 dark:text-red-400/80 mb-6">Once you delete your account, there is no
+                        going back. Please be
                         certain.</p>
                     <button
-                        class="px-6 py-2 bg-white text-red-600 font-bold rounded-xl border border-red-200 hover:bg-red-50 transition-colors">Delete
+                        class="px-6 py-2 bg-white dark:bg-slate-800 text-red-600 dark:text-red-400 font-bold rounded-xl border border-red-200 dark:border-red-900 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">Delete
                         Account</button>
                 </div>
             </div>

@@ -65,16 +65,78 @@ class User(AbstractUser):
         ('revoked', 'Revoked'),
     ]
 
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
+
+    STUDENT_TYPE_CHOICES = [
+        ('school', 'School Student'),
+        ('college', 'College Student'),
+    ]
+    
+    SPORTS_DISCIPLINE_CHOICES = [
+        ('Badminton', 'Badminton'),
+        ('Volleyball', 'Volleyball'),
+        ('Basketball', 'Basketball'),
+        ('Table Tennis', 'Table Tennis'),
+        ('Others', 'Others'),
+    ]
+
+    # Basic Info
     full_name = models.CharField(max_length=100)
+    father_name = models.CharField(max_length=100, blank=True, null=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, default='M')
+    dob = models.DateField(null=True, blank=True)
     address = models.TextField()
-    phone_number = models.CharField(max_length=15)
+    phone_number = models.CharField(max_length=15, unique=True)
+    email = models.EmailField(unique=True) # Ensure unique email
+
+    # Verification
     aadhaar_number = models.CharField(max_length=12, unique=True, null=True, blank=True)
+    is_aadhaar_verified = models.BooleanField(default=False)
+    is_mobile_verified = models.BooleanField(default=False)
     
-    # Changed from CharField choices to ForeignKey
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    # Category / Type
+    # We will prioritize 'is_student' flag over Category model dependency for logic
+    is_student = models.BooleanField(default=False)
+    student_type = models.CharField(max_length=10, choices=STUDENT_TYPE_CHOICES, null=True, blank=True)
     
+    # Student Specifics
+    school_college_name = models.CharField(max_length=200, null=True, blank=True)
+    
+    # For School
+    current_class = models.IntegerField(null=True, blank=True, help_text="Class 1-12")
+    
+    # For College
+    course_start_date = models.DateField(null=True, blank=True)
+    course_end_date = models.DateField(null=True, blank=True)
+    
+    # Files
+    student_id_proof = models.ImageField(upload_to='student_ids/', null=True, blank=True)
     photo = models.ImageField(upload_to='user_photos/', null=True, blank=True)
+    
+    # Extras
+    sports_discipline = models.CharField(max_length=50, choices=SPORTS_DISCIPLINE_CHOICES, default='Others')
+
+    # System Status
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+
+    # Keep the category FK for backward compatibility or simple grouping if needed, 
+    # but logic will rely on is_student
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+
+    # Ban System Fields
+    banned_until = models.DateTimeField(null=True, blank=True, help_text="User is banned until this date.")
+    is_permanently_banned = models.BooleanField(default=False, help_text="User is permanently banned.")
+
+    def is_banned(self):
+        if self.is_permanently_banned:
+            return True
+        if self.banned_until and self.banned_until > timezone.now():
+            return True
+        return False
 
     def __str__(self):
         return f"{self.username} ({self.status})"

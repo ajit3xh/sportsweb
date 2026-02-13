@@ -1,82 +1,278 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+<div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative bg-gray-50">
     <!-- Decorative items -->
     <div
-        class="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10 -translate-x-1/2 -translate-y-1/2">
+        class="absolute top-0 left-0 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl -z-10 -translate-x-1/2 -translate-y-1/2">
     </div>
     <div
-        class="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10 translate-x-1/2 translate-y-1/2">
+        class="absolute bottom-0 right-0 w-96 h-96 bg-purple-400/20 rounded-full blur-3xl -z-10 translate-x-1/2 translate-y-1/2">
     </div>
 
-    <div
-        class="max-w-xl w-full space-y-8 bg-white/80 backdrop-blur-xl p-10 rounded-3xl border border-white shadow-2xl fade-in-up">
+    <div class="max-w-4xl w-full space-y-8 bg-white p-10 rounded-3xl shadow-xl border border-gray-100">
         <div class="text-center">
-            <h2 class="text-4xl font-extrabold text-dark tracking-tight">Create Account</h2>
-            <p class="mt-2 text-sm text-slate-500">Join the community and start booking today.</p>
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Create Account</h2>
+            <p class="mt-2 text-sm text-gray-600">Join the community and start booking today.</p>
         </div>
 
-        <form method="post" enctype="multipart/form-data" class="space-y-6 mt-8">
+        <form method="post" enctype="multipart/form-data" class="space-y-6 mt-8" id="registrationForm">
             {% csrf_token %}
 
-            <div class="grid grid-cols-1 gap-6">
-                {% for field in form %}
-                <div>
-                    <label class="block text-sm font-bold text-slate-700 mb-2">{{ field.label }}</label>
+            {% if form.errors %}
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <!-- Heroicon name: solid/exclamation -->
+                        <svg class="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">
+                            Please correct the errors below.
+                        </p>
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
 
-                    <!-- Render field manually or force class if widget doesn't accept attrs easily -->
-                    <!-- Simpler approach: Use the field but we need to ensure it has tailwind classes. 
-                         Since we can't easily injection widget attrs in template without custom tags, 
-                         we will wrap it or rely on a JS helper if needed, BUT best is to render it manually if modelform.
-                         However, for speed, let's use a small script to inject classes OR assumes `styles.css` inputs work.
-                         My `styles.css` targets `.form-control` but Django default doesn't add classes.
-                         I will wrap in a div and use a script to add classes, OR assume I can add widget tweaks in View. 
-                         Let's use the SCript approach I used in login.html? No, login used manual input tags.
-                         Here form is dynamic. I will use a JS snippet to stylize the inputs.
-                    -->
-                    <div class="tailwind-input-wrapper">
-                        {{ field }}
+            <!-- Section: Basic Info -->
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4 border-b pb-2">Basic Information</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Username</label>
+                        {{ form.username }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.username.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                        {{ form.full_name }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.full_name.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Father's / Husband's Name</label>
+                        {{ form.father_name }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.father_name.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Gender</label>
+                        {{ form.gender }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.gender.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Date of Birth</label>
+                        {{ form.dob }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.dob.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Sports Discipline</label>
+                        {{ form.sports_discipline }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.sports_discipline.errors }}</div>
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Complete Address</label>
+                        {{ form.address }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.address.errors }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Verification -->
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4 border-b pb-2">Contact & Verification</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Mobile Number</label>
+                        <div class="flex">
+                            {{ form.phone_number }}
+                            <button type="button"
+                                onclick="alert('OTP sent to ' + document.querySelector('[name=phone_number]').value)"
+                                class="ml-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition">Get
+                                OTP</button>
+                        </div>
+                        <div class="text-red-500 text-xs mt-1">{{ form.phone_number.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Email ID</label>
+                        {{ form.email }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.email.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Aadhaar Number</label>
+                        <div class="flex">
+                            {{ form.aadhaar_number }}
+                            <button type="button" onclick="alert('Aadhaar Verification Initiated')"
+                                class="ml-2 px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 transition">Verify</button>
+                        </div>
+                        <div class="text-red-500 text-xs mt-1">{{ form.aadhaar_number.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Photo</label>
+                        {{ form.photo }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.photo.errors }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Student Toggle -->
+            <div class="bg-blue-50 p-6 rounded-xl border border-blue-200">
+                <div class="flex items-center mb-4">
+                    {{ form.is_student }}
+                    <label for="{{ form.is_student.id_for_label }}"
+                        class="ml-3 block text-lg font-medium text-gray-900">
+                        Are you a Student?
+                    </label>
+                </div>
+
+                <div id="student-section" class="hidden pl-6 border-l-4 border-blue-300 space-y-4">
+                    <h4 class="text-md font-semibold text-blue-800">Student Details</h4>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Student Type</label>
+                        {{ form.student_type }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.student_type.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">School / College Name</label>
+                        {{ form.school_college_name }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.school_college_name.errors }}</div>
                     </div>
 
-                    {% if field.help_text %}
-                    <p class="mt-1 text-xs text-slate-500 font-medium">{{ field.help_text }}</p>
-                    {% endif %}
-                    {% if field.errors %}
-                    <p class="mt-1 text-sm text-red-500">{{ field.errors.0 }}</p>
-                    {% endif %}
+                    <!-- Dynamic Fields -->
+                    <div id="school-fields" class="hidden bg-white p-4 rounded-lg shadow-sm">
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Current Class (1-12)</label>
+                        {{ form.current_class }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.current_class.errors }}</div>
+                    </div>
+
+                    <div id="college-fields"
+                        class="hidden bg-white p-4 rounded-lg shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Course Start Date</label>
+                            {{ form.course_start_date }}
+                            <div class="text-red-500 text-xs mt-1">{{ form.course_start_date.errors }}</div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Course End Date</label>
+                            {{ form.course_end_date }}
+                            <div class="text-red-500 text-xs mt-1">{{ form.course_end_date.errors }}</div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Upload ID Proof (Both
+                            Sides)</label>
+                        {{ form.student_id_proof }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.student_id_proof.errors }}</div>
+                    </div>
                 </div>
-                {% endfor %}
+            </div>
+
+            <!-- Section: Password -->
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200">
+                <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4 border-b pb-2">Security</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Password</label>
+                        {{ form.password }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.password.errors }}</div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Confirm Password</label>
+                        {{ form.confirm_password }}
+                        <div class="text-red-500 text-xs mt-1">{{ form.confirm_password.errors }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Declaration -->
+            <div class="bg-yellow-50 p-6 rounded-xl border border-yellow-200">
+                <div class="flex items-start">
+                    <div class="flex items-center h-5 mt-1">
+                        {{ form.declaration }}
+                    </div>
+                    <div class="ml-3 text-sm">
+                        <label for="{{ form.declaration.id_for_label }}"
+                            class="font-medium text-gray-800 leading-relaxed">
+                            {{ form.declaration.label }}
+                        </label>
+                    </div>
+                </div>
+                <div class="text-red-500 text-xs mt-1 ml-8">{{ form.declaration.errors }}</div>
             </div>
 
             <div class="pt-4">
                 <button type="submit"
-                    class="w-full flex justify-center py-4 px-4 border border-transparent text-lg font-bold rounded-xl text-white bg-gradient-to-r from-primary to-blue-600 hover:to-blue-700 shadow-xl shadow-blue-500/30 transition-all hover:scale-[1.02]">
-                    Complete Registration
+                    class="w-full flex justify-center py-4 px-4 border border-transparent text-lg font-bold rounded-xl text-white bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg transform transition hover:scale-[1.01]">
+                    Submit Application
                 </button>
             </div>
         </form>
 
         <div class="text-center mt-6">
-            <p class="text-sm text-slate-500">
+            <p class="text-sm text-gray-600">
                 Already have an account?
-                <a href="{% url 'users:login' %}" class="font-bold text-primary hover:text-blue-700">Log in</a>
+                <a href="{% url 'users:login' %}" class="font-bold text-blue-600 hover:text-blue-800">Log in</a>
             </p>
         </div>
     </div>
 </div>
 
 <script>
-    // Apply Tailwind classes to Django form inputs
     document.addEventListener('DOMContentLoaded', () => {
+        // Tailwind styling injection (since we are not using widget attrs everywhere)
         const inputs = document.querySelectorAll('input, select, textarea');
         inputs.forEach(input => {
-            if (input.type !== 'checkbox' && input.type !== 'radio') {
-                input.className = 'appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm bg-slate-50 text-dark';
-            } else {
-                input.className = 'w-4 h-4 text-primary border-slate-300 focus:ring-primary rounded';
+            if (input.type !== 'checkbox' && input.type !== 'radio' && input.type !== 'file' && input.type !== 'submit' && input.type !== 'button') {
+                input.classList.add('appearance-none', 'block', 'w-full', 'px-4', 'py-3', 'border', 'border-gray-300', 'rounded-lg', 'placeholder-gray-400', 'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500', 'focus:border-transparent', 'transition-shadow');
+            } else if (input.type === 'checkbox') {
+                input.classList.add('h-5', 'w-5', 'text-blue-600', 'focus:ring-blue-500', 'border-gray-300', 'rounded');
+            } else if (input.type === 'file') {
+                input.classList.add('block', 'w-full', 'text-sm', 'text-slate-500',
+                    'file:mr-4', 'file:py-2', 'file:px-4', 'file:rounded-full', 'file:border-0',
+                    'file:text-sm', 'file:font-semibold', 'file:bg-blue-50', 'file:text-blue-700', 'hover:file:bg-blue-100');
             }
         });
+
+        // Toggle Logic
+        const isStudentCheckbox = document.querySelector('input[name="is_student"]');
+        const studentSection = document.getElementById('student-section');
+        const studentTypeSelect = document.querySelector('select[name="student_type"]');
+        const schoolFields = document.getElementById('school-fields');
+        const collegeFields = document.getElementById('college-fields');
+
+        function toggleStudent() {
+            if (isStudentCheckbox.checked) {
+                studentSection.classList.remove('hidden');
+            } else {
+                studentSection.classList.add('hidden');
+            }
+        }
+
+        function toggleType() {
+            const val = studentTypeSelect.value;
+            schoolFields.classList.add('hidden');
+            collegeFields.classList.add('hidden');
+
+            if (val === 'school') {
+                schoolFields.classList.remove('hidden');
+            } else if (val === 'college') {
+                collegeFields.classList.remove('hidden');
+            }
+        }
+
+        isStudentCheckbox.addEventListener('change', toggleStudent);
+        studentTypeSelect.addEventListener('change', toggleType);
+
+        // Run on load
+        toggleStudent();
+        toggleType();
     });
 </script>
 {% endblock %}

@@ -7,6 +7,7 @@ class Facility(models.Model):
     max_duration = models.IntegerField(help_text="Max duration in minutes")
     is_active = models.BooleanField(default=True)
     image = models.ImageField(upload_to='facility_images/', null=True, blank=True)
+    capacity_per_slot = models.IntegerField(default=1, help_text="Number of bookings allowed per slot")
 
     def __str__(self):
         return self.facility_name
@@ -58,7 +59,7 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('facility', 'slot', 'booking_date')
+        unique_together = ('user', 'facility', 'slot', 'booking_date')
 
     def clean(self):
         if self.user.status != 'approved':
@@ -78,5 +79,21 @@ class Booking(models.Model):
         self.clean()
         super().save(*args, **kwargs)
 
+class FacilityClosure(models.Model):
+    """
+    Dates when the facility is closed.
+    If facility is null, it applies to ALL facilities.
+    """
+    date = models.DateField()
+    description = models.CharField(max_length=200, help_text="Reason for closure")
+    facility = models.ForeignKey(Facility, on_delete=models.CASCADE, null=True, blank=True, help_text="Leave blank to close ALL facilities")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('date', 'facility')
+        ordering = ['date']
+
     def __str__(self):
-        return f"{self.user} - {self.facility} on {self.booking_date}"
+        target = self.facility.facility_name if self.facility else "ALL Facilities"
+        return f"Closed: {target} on {self.date} ({self.description})"
+

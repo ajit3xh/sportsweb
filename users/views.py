@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.utils import timezone
 from .forms import UserRegistrationForm, UserLoginForm
 from .models import User
 from facilities.models import Facility, FacilityPricing, Category
@@ -21,20 +22,65 @@ def tariff_view(request):
     
     categories = Category.objects.all().order_by('-priority')
     
-    # Group membership tiers by duration
-    tiers_by_duration = {}
-    for duration in [1, 6, 12]:
-        tiers_by_duration[duration] = MembershipTier.objects.filter(
-            duration_months=duration,
-            is_active=True
-        ).select_related('category').order_by('category__priority')
+    # Get user's active membership if authenticated
+    active_membership = None
+    if request.user.is_authenticated:
+        from .models import Membership
+        active_membership = Membership.objects.filter(
+            user=request.user,
+            is_active=True,
+            end_date__gte=timezone.now().date()
+        ).select_related('membership_tier').first()
+
+        if active_membership:
+             # Formatted duration for the active plan card
+            months = active_membership.membership_tier.duration_months
+            if months == 1:
+                active_membership.membership_tier.display_duration = "30 Days"
+            elif months == 6:
+                active_membership.membership_tier.display_duration = "6 Months"
+            elif months == 12:
+                active_membership.membership_tier.display_duration = "1 Year"
+            else:
+                active_membership.membership_tier.display_duration = f"{months} Months"
+    
+    # Group membership tiers by duration and annotate with status
+    def annotate_tiers(tiers, active_mem):
+        result = []
+        for tier in tiers:
+            # Set display duration text
+            if tier.duration_months == 1:
+                tier.display_duration = "30 Days"
+            elif tier.duration_months == 6:
+                tier.display_duration = "6 Months"
+            elif tier.duration_months == 12:
+                tier.display_duration = "1 Year"
+            else:
+                tier.display_duration = f"{tier.duration_months} Months"
+
+            if not request.user.is_authenticated:
+                tier.status = 'login'
+            elif active_mem and active_mem.membership_tier.id == tier.id:
+                tier.status = 'active'
+            elif active_mem and (tier.duration_months > active_mem.membership_tier.duration_months or (tier.duration_months == active_mem.membership_tier.duration_months and tier.base_price > active_mem.membership_tier.base_price)):
+                tier.status = 'upgrade'
+            elif not active_mem:
+                tier.status = 'purchase'
+            else:
+                tier.status = 'none'
+            result.append(tier)
+        return result
+    
+    monthly = MembershipTier.objects.filter(duration_months=1, is_active=True).select_related('category').order_by('category__priority')
+    half_yearly = MembershipTier.objects.filter(duration_months=6, is_active=True).select_related('category').order_by('category__priority')
+    yearly = MembershipTier.objects.filter(duration_months=12, is_active=True).select_related('category').order_by('category__priority')
     
     return render(request, 'tariff.html', {
         'categories': categories,
-        'tiers_by_duration': tiers_by_duration,
-        'monthly_tiers': tiers_by_duration.get(1, []),
-        'half_yearly_tiers': tiers_by_duration.get(6, []),
-        'yearly_tiers': tiers_by_duration.get(12, [])
+        'monthly_tiers': annotate_tiers(monthly, active_membership),
+        'half_yearly_tiers': annotate_tiers(half_yearly, active_membership),
+        'yearly_tiers': annotate_tiers(yearly, active_membership),
+        'active_membership': active_membership,
     })
 
 def register_view(request):
@@ -43,29 +89,104 @@ def register_view(request):
         if form.is_valid():
             user = form.save(commit=False)
             user.set_password(form.cleaned_data['password'])
-            user.status = 'approved' # Auto-approve
+            
+            # Initial state: Not verified
+            user.is_mobile_verified = False
+            user.is_aadhaar_verified = False
+            # We save the user now so we have an ID
             user.save()
-            login(request, user)
-            return redirect('users:dashboard')
+            
+            # Generate Demo OTPs
+            import random
+            otp_mobile = str(random.randint(1000, 9999))
+            otp_aadhaar = str(random.randint(1000, 9999))
+            
+            print(f"\n[DEMO] Registration OTPs for {user.username}:")
+            print(f"   Mobile OTP: {otp_mobile}")
+            print(f"   Aadhaar OTP: {otp_aadhaar}\n")
+            
+            # Store in session
+            request.session['reg_user_id'] = user.id
+            request.session['reg_otp_mobile'] = otp_mobile
+            request.session['reg_otp_aadhaar'] = otp_aadhaar
+            
+            messages.info(request, "Please verify your mobile and Aadhaar to complete registration.")
+            return redirect('users:verify_registration')
     else:
         form = UserRegistrationForm()
     return render(request, 'users/register.html', {'form': form})
 
+def verify_registration_view(request):
+    user_id = request.session.get('reg_user_id')
+    if not user_id:
+        return redirect('users:register')
+        
+    if request.method == 'POST':
+        input_mobile = request.POST.get('mobile_otp')
+        input_aadhaar = request.POST.get('aadhaar_otp')
+        
+        session_mobile = request.session.get('reg_otp_mobile')
+        session_aadhaar = request.session.get('reg_otp_aadhaar')
+        
+        if input_mobile == session_mobile and input_aadhaar == session_aadhaar:
+            try:
+                user = User.objects.get(id=user_id)
+                user.is_mobile_verified = True
+                user.is_aadhaar_verified = True
+                
+                # Cleanup session keys first (good practice, though we might need user object)
+                keys_to_delete = ['reg_user_id', 'reg_otp_mobile', 'reg_otp_aadhaar']
+                for key in keys_to_delete:
+                    if key in request.session: del request.session[key]
+
+                # Check student status
+                if user.is_student:
+                    user.status = 'pending'
+                    user.save()
+                    messages.info(request, "Verification successful! Account pending admin approval.")
+                    return redirect('users:login')
+                else:
+                    user.status = 'approved'
+                    user.save()
+                    user.backend = 'django.contrib.auth.backends.ModelBackend'
+                    login(request, user)
+                    messages.success(request, "Verification successful! Welcome to dashboard.")
+                    return redirect('users:dashboard')
+                
+            except User.DoesNotExist:
+                messages.error(request, "User not found.")
+                return redirect('users:register')
+        else:
+            messages.error(request, "Invalid OTPs. Please check terminal and try again.")
+            
+    return render(request, 'users/verify_registration.html')
+
 def login_view(request):
     """User Login"""
     if request.method == 'POST':
-        form = UserLoginForm(request.POST)
+        from django.contrib.auth.forms import AuthenticationForm
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
             user = authenticate(username=username, password=password)
-            if user:
+            if user is not None:
+                # Check Ban Status
+                if user.is_banned():
+                    from django.utils import timezone
+                    msg = "Your account is permanently banned."
+                    if user.banned_until and user.banned_until > timezone.now():
+                        msg = f"Your account is banned until {user.banned_until.strftime('%Y-%m-%d %H:%M')}."
+                    messages.error(request, msg)
+                    return redirect('users:login')
+                
                 login(request, user)
-                if user.is_staff:
-                    return redirect('users:admin_dashboard')
-                return redirect('users:dashboard')
+                messages.info(request, f"You are now logged in as {username}.")
+                return redirect('home')
             else:
-                messages.error(request, "Invalid Credentials")
+                messages.error(request, "Invalid username or password.")
+        else:
+            messages.error(request, "Invalid username or password.")
     else:
         form = UserLoginForm()
     return render(request, 'users/login.html', {'form': form, 'is_admin_login': False})
@@ -105,21 +226,49 @@ def dashboard_view(request):
         is_active=True
     ).select_related('membership_tier').first()
     
+    if active_membership:
+        months = active_membership.membership_tier.duration_months
+        if months == 1:
+            active_membership.membership_tier.display_duration = "Monthly Plan"
+        elif months == 6:
+            active_membership.membership_tier.display_duration = "Half-Yearly Plan"
+        elif months == 12:
+            active_membership.membership_tier.display_duration = "Yearly Plan"
+        else:
+            active_membership.membership_tier.display_duration = f"{months} Months Plan"
+
     # Calculate days remaining if membership exists
     days_remaining = None
     if active_membership and active_membership.is_valid():
         from django.utils import timezone
         days_remaining = (active_membership.end_date - timezone.now().date()).days
     
-    recent_bookings = Booking.objects.filter(user=request.user).order_by('-created_at')[:5]
+    recent_bookings = Booking.objects.filter(user=request.user).select_related('facility', 'slot').order_by('-created_at')[:5]
     
+    # Format dates for template to avoid potential rendering issues
+    valid_until = ""
+    if active_membership and active_membership.end_date:
+        valid_until = active_membership.end_date.strftime("%B %d, %Y")
+
+    formatted_bookings = []
+    for booking in recent_bookings:
+        formatted_bookings.append({
+            'f_name': booking.facility.facility_name,
+            'f_date': booking.booking_date.strftime("%d"),
+            'f_month': booking.booking_date.strftime("%b %Y"),
+            'slot_time': f"{booking.slot.start_time.strftime('%I:%M %p')} - {booking.slot.end_time.strftime('%I:%M %p')}",
+            'f_status': booking.status,
+        })
+
     context = {
         'user': request.user,
         'active_membership': active_membership,
         'days_remaining': days_remaining,
-        'recent_bookings': recent_bookings
+        'recent_bookings': recent_bookings,
+        'valid_until': valid_until,
+        'formatted_bookings': formatted_bookings
     }
-    return render(request, 'users/dashboard.html', context)
+    return render(request, 'users/dashboard_v2.html', context)
 
 @login_required
 def purchase_membership_view(request, tier_id):
@@ -199,11 +348,30 @@ def profile_view(request):
     from facilities.models import Booking
     from .models import Membership
     
-    active_membership = Membership.objects.filter(user=request.user, is_active=True).first()
+    active_membership = Membership.objects.filter(user=request.user, is_active=True).select_related('membership_tier').first()
+    
+    if active_membership:
+        months = active_membership.membership_tier.duration_months
+        if months == 1:
+            active_membership.membership_tier.display_duration = "Monthly Plan"
+        elif months == 6:
+            active_membership.membership_tier.display_duration = "Half-Yearly Plan"
+        elif months == 12:
+            active_membership.membership_tier.display_duration = "Yearly Plan"
+        else:
+            active_membership.membership_tier.display_duration = f"{months} Months Plan"
+
+    # Calculate days remaining
+    days_remaining = None
+    if active_membership and active_membership.is_valid():
+        from django.utils import timezone
+        days_remaining = (active_membership.end_date - timezone.now().date()).days
+
     total_bookings = Booking.objects.filter(user=request.user).count()
     
     context = {
         'active_membership': active_membership,
+        'days_remaining': days_remaining,
         'total_bookings': total_bookings,
         'user': request.user
     }
@@ -217,3 +385,102 @@ def settings_view(request):
 def about_us_view(request):
     """About Us Page"""
     return render(request, 'about_us.html')
+
+def forgot_password_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            user = User.objects.get(email=email)
+            # Generate OTPs
+            import random
+            otp_email = str(random.randint(100000, 999999))
+            otp_mobile = str(random.randint(100000, 999999))
+            
+            # Simulate Sending
+            print(f"SIMULATED OTPs for {user.username}: Email={otp_email}, Mobile={otp_mobile}")
+            messages.success(request, f"OTPs sent! (Simulated: Email={otp_email}, Mobile={otp_mobile})")
+            
+            # Store in session
+            request.session['reset_email'] = email
+            request.session['otp_email'] = otp_email
+            request.session['otp_mobile'] = otp_mobile
+            return redirect('users:verify_otp')
+            
+        except User.DoesNotExist:
+            messages.error(request, "Email not found.")
+            
+    return render(request, 'users/forgot_password.html')
+
+def verify_otp_view(request):
+    if 'reset_email' not in request.session:
+        return redirect('users:forgot_password')
+        
+    if request.method == 'POST':
+        input_email_otp = request.POST.get('email_otp')
+        input_mobile_otp = request.POST.get('mobile_otp')
+        
+        session_email_otp = request.session.get('otp_email')
+        session_mobile_otp = request.session.get('otp_mobile')
+        
+        if input_email_otp == session_email_otp and input_mobile_otp == session_mobile_otp:
+            request.session['reset_verified'] = True
+            return redirect('users:reset_password')
+        else:
+            messages.error(request, "Invalid OTPs. Please try again.")
+            
+    return render(request, 'users/verify_otp.html')
+
+def reset_password_view(request):
+    if not request.session.get('reset_verified') or 'reset_email' not in request.session:
+        return redirect('users:forgot_password')
+        
+    if request.method == 'POST':
+        new_pass = request.POST.get('new_password')
+        confirm_pass = request.POST.get('confirm_password')
+        
+        if new_pass != confirm_pass:
+            messages.error(request, "Passwords do not match.")
+        else:
+            email = request.session['reset_email']
+            try:
+                user = User.objects.get(email=email)
+                if user.check_password(new_pass):
+                     messages.error(request, "New password cannot be the same as old password.")
+                else:
+                    user.set_password(new_pass)
+                    user.save()
+                    # Clear session
+                    if 'reset_email' in request.session: del request.session['reset_email']
+                    if 'otp_email' in request.session: del request.session['otp_email']
+                    if 'otp_mobile' in request.session: del request.session['otp_mobile']
+                    if 'reset_verified' in request.session: del request.session['reset_verified']
+                    
+                    messages.success(request, "Password reset successful! Please login.")
+                    return redirect('users:login')
+            except User.DoesNotExist:
+                messages.error(request, "User not found.")
+                
+    return render(request, 'users/reset_password.html')
+
+@login_required
+def change_password_view(request):
+    if request.method == 'POST':
+        old_pass = request.POST.get('old_password')
+        new_pass = request.POST.get('new_password')
+        confirm_pass = request.POST.get('confirm_password')
+        
+        if not request.user.check_password(old_pass):
+            messages.error(request, "Incorrect old password.")
+        elif new_pass != confirm_pass:
+            messages.error(request, "New passwords do not match.")
+        elif old_pass == new_pass:
+            messages.error(request, "New password cannot be the same as old password.")
+        else:
+            request.user.set_password(new_pass)
+            request.user.save()
+            from django.contrib.auth import update_session_auth_hash
+            update_session_auth_hash(request, request.user) # Keep user logged in
+            messages.success(request, "Password changed successfully.")
+            return redirect('users:settings')
+            
+    return redirect('users:settings')

@@ -1,0 +1,283 @@
+
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GovSports | Premium Facility Management</title>
+  <!-- Fonts: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Custom Config -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            primary: '#0066FF',
+            secondary: '#00CC88',
+            dark: '#0F172A',
+            light: '#F8FAFC',
+            energy: '#FF3B30',
+          },
+          animation: {
+            'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+            'spin-slow': 'spin 3s linear infinite',
+          },
+          keyframes: {
+            fadeInUp: {
+              '0%': { opacity: '0', transform: 'translateY(20px)' },
+              '100%': { opacity: '1', transform: 'translateY(0)' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    [x-cloak] {
+      display: none !important;
+    }
+
+    .glass {
+      background: rgba(255, 255, 255, 0.1);
+      /* Lower opacity */
+      backdrop-filter: blur(20px);
+      /* Higher blur */
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    }
+
+    .glass-dark {
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    }
+
+    /* Ultra Glass Card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body class="bg-light text-slate-800 antialiased selection:bg-primary selection:text-white flex flex-col min-h-screen">
+
+  <!-- Navigation -->
+  <nav class="fixed w-full z-50 transition-all duration-300 glass" x-data="{ scrolled: false, mobileOpen: false }"
+    @scroll.window="scrolled = (window.pageYOffset > 20)">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex justify-between items-center h-20">
+        <!-- Logo -->
+        <div class="flex-shrink-0 flex items-center">
+          <a href="/" class="flex items-center gap-2 group">
+            <div
+              class="w-8 h-8 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-white font-bold group-hover:rotate-12 transition-transform">
+              S
+            </div>
+            <span class="font-bold text-xl tracking-tight text-dark">GOV<span class="text-primary">SPORTS</span></span>
+          </a>
+        </div>
+
+        <!-- Desktop Menu -->
+        <div class="hidden md:flex space-x-8 items-center">
+          <a href="/"
+            class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Home</a>
+          <a href="/tariff/"
+            class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Tariff</a>
+          <a href="/facilities/gallery/"
+            class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Gallery</a>
+
+          
+          <a href="/users/login/"
+            class="text-sm font-medium text-slate-600 hover:text-primary transition-colors">Log In</a>
+          <a href="/users/register/"
+            class="px-5 py-2.5 rounded-full bg-gradient-to-r from-primary to-blue-500 text-white text-sm font-bold shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-105 transition-all">
+            Register
+          </a>
+          
+        </div>
+
+        <!-- Mobile Button -->
+        <div class="md:hidden flex items-center">
+          <button @click="mobileOpen = !mobileOpen" class="text-slate-600 hover:text-primary focus:outline-none">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Menu -->
+    <div x-show="mobileOpen" x-transition class="md:hidden bg-white/95 backdrop-blur-xl border-t border-slate-100">
+      <div class="px-4 pt-2 pb-6 space-y-2">
+        <a href="/"
+          class="block px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-primary">Home</a>
+        <a href="/tariff/"
+          class="block px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-primary">Tariff</a>
+        <a href="/facilities/gallery/"
+          class="block px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-primary">Gallery</a>
+        
+        <a href="/users/login/"
+          class="block px-3 py-2 rounded-lg text-base font-medium text-slate-600 hover:bg-slate-50 hover:text-primary">Log
+          In</a>
+        <a href="/users/register/"
+          class="block w-full text-center mt-4 px-5 py-3 rounded-xl bg-primary text-white font-bold shadow-lg">Register
+          Now</a>
+        
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="flex-grow pt-20">
+    
+
+    
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative">
+    <!-- Decorative items -->
+    <div
+        class="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -z-10 translate-x-1/2 -translate-y-1/2">
+    </div>
+    <div
+        class="absolute bottom-0 left-0 w-96 h-96 bg-secondary/10 rounded-full blur-3xl -z-10 -translate-x-1/2 translate-y-1/2">
+    </div>
+
+    <div
+        class="max-w-md w-full space-y-8 bg-white/80 backdrop-blur-xl p-8 rounded-3xl border border-white shadow-2xl fade-in-up">
+        <div class="text-center">
+            
+            <div class="mx-auto h-16 w-16 bg-blue-100 rounded-2xl flex items-center justify-center text-primary mb-4">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1">
+                    </path>
+                </svg>
+            </div>
+            <h2 class="text-3xl font-extrabold text-dark tracking-tight">Welcome Back</h2>
+            <p class="mt-2 text-sm text-slate-500">Sign in to access your bookings</p>
+            
+        </div>
+
+        
+
+        <form class="mt-8 space-y-6" method="POST">
+            <input type="hidden" name="csrfmiddlewaretoken" value="QNgVrKDLcE13xrYmDPpy1WBEtvxqR9x16PStWOj8fALNDoaIUWVsoOmq4vs0gY73">
+            <div class="space-y-4">
+                
+                <div>
+                    <label for="id_username" class="block text-sm font-medium text-slate-700 mb-1">{{
+                        field.label }}</label>
+                    <input type="text" name="username"
+                        id="id_username" required
+                        class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm bg-slate-50 text-dark">
+                    
+                </div>
+                
+                <div>
+                    <label for="id_password" class="block text-sm font-medium text-slate-700 mb-1">{{
+                        field.label }}</label>
+                    <input type="password" name="password"
+                        id="id_password" required
+                        class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm bg-slate-50 text-dark">
+                    
+                </div>
+                
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="text-sm">
+                    <a href="/users/forgot-password/" class="font-medium text-primary hover:text-blue-700">
+                        Forgot your password?
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit"
+                    class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-primary hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary shadow-lg shadow-blue-500/30 transition-all hover:scale-[1.02]">
+                    Sign in
+                </button>
+            </div>
+        </form>
+
+        
+        <div class="text-center mt-4">
+            <p class="text-sm text-slate-500">
+                Don't have an account?
+                <a href="/users/register/" class="font-bold text-primary hover:text-blue-700">Create one
+                    now</a>
+            </p>
+        </div>
+        
+    </div>
+</div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-dark text-slate-400 py-12 mt-20 border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div class="col-span-1 md:col-span-2">
+          <span class="font-bold text-2xl text-white tracking-tight">GOV<span class="text-primary">SPORTS</span></span>
+          <p class="mt-4 text-sm leading-relaxed max-w-xs">
+            The official portal for booking premium sports facilities. Experience world-class venues with seamless
+            digital access.
+          </p>
+        </div>
+        <div>
+          <h4 class="text-white font-bold mb-4">Quick Links</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="/about-us/" class="hover:text-primary transition-colors">About Us</a></li>
+            <li><a href="/tariff/" class="hover:text-primary transition-colors">Tariff Card</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Contact Support</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-white font-bold mb-4">Legal</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="hover:text-primary transition-colors">Privacy Policy</a></li>
+            <li><a href="#" class="hover:text-primary transition-colors">Terms of Service</a></li>
+            <li><a href="/users/admin-login/"
+                class="text-red-400 hover:text-red-300 transition-colors flex items-center gap-1"><svg class="w-3 h-3"
+                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+                  </path>
+                </svg> Admin Access</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs">
+        <p>&copy; 2026 Sports Authority. All rights reserved.</p>
+        <div class="mt-4 md:mt-0 flex space-x-4">
+          <a href="#" class="hover:text-white">Twitter</a>
+          <a href="#" class="hover:text-white">Instagram</a>
+          <a href="#" class="hover:text-white">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+
+</html>

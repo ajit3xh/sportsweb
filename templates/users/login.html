@@ -58,7 +58,8 @@
             <div class="space-y-4">
                 {% for field in form %}
                 <div>
-                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">{{ field.label }}</label>
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-medium text-slate-700 mb-1">{{
+                        field.label }}</label>
                     <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}"
                         id="{{ field.id_for_label }}" required
                         class="appearance-none block w-full px-4 py-3 border border-slate-300 rounded-xl placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all shadow-sm bg-slate-50 text-dark">
@@ -67,6 +68,14 @@
                     {% endif %}
                 </div>
                 {% endfor %}
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="text-sm">
+                    <a href="{% url 'users:forgot_password' %}" class="font-medium text-primary hover:text-blue-700">
+                        Forgot your password?
+                    </a>
+                </div>
             </div>
 
             <div>

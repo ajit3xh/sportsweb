@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+
+content = r"""{% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
@@ -118,3 +119,15 @@
     </div>
 </div>
 {% endblock %}
+"""
+
+import os
+
+file_path = r'c:\Users\ajite\Desktop\sportsweb\templates\users\profile.html'
+
+try:
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
+    print(f"Successfully wrote clean content to {file_path}")
+except Exception as e:
+    print(f"Error writing file: {e}")
