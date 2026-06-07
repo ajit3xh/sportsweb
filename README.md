@@ -91,34 +91,5 @@ npm run dev
 
 ---
 
-## ☁️ Deployment Instructions
-
-To host this application publicly, we recommend the following modern, scalable architecture:
-
-### Frontend Hosting (Vercel)
-1. Push your code to GitHub.
-2. Log into [Vercel](https://vercel.com/) and create a new project.
-3. Import your GitHub repository.
-4. Set the Root Directory to `frontend`.
-5. Vercel will automatically detect Next.js and build your site. Add an environment variable `NEXT_PUBLIC_API_URL` pointing to your production backend URL.
-
-### Backend Hosting (Render, Railway, or Heroku)
-1. **Database:** Provision a managed PostgreSQL database. Update `settings.py` to use `dj-database-url` to read your `DATABASE_URL`.
-2. **Web Service:** Create a new Web Service and link your GitHub repository.
-3. **Start Command:** Set the start command to `gunicorn sports_management_system.wsgi`.
-4. **Environment Variables:**
-   - `DJANGO_SECRET_KEY`: A secure random string.
-   - `DJANGO_DEBUG`: `False`
-   - `DJANGO_ALLOWED_HOSTS`: Your Render/Railway backend domain.
-   - `CORS_ALLOWED_ORIGINS`: Your Vercel frontend domain.
-5. **Static Files:** Configure [WhiteNoise](http://whitenoise.evans.io/) in Django to serve the admin panel's static files.
-
-### Media Storage (AWS S3)
-Because cloud hosting providers (like Render) wipe local files when the server restarts, you **must** configure remote cloud storage for user uploads (like Gallery images).
-- Install `django-storages` and `boto3`.
-- Configure `settings.py` with your AWS S3 bucket credentials.
-
----
-
 ## 📖 License
 This project is proprietary and intended for institutional use. Unauthorized copying, distribution, or modification is prohibited without explicit permission.
