@@ -1,12 +1,13 @@
 from django.db import models
 from users.models import User, Category
 from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 
 class Facility(models.Model):
     facility_name = models.CharField(max_length=50)
     max_duration = models.IntegerField(help_text="Max duration in minutes")
     is_active = models.BooleanField(default=True)
-    image = models.ImageField(upload_to='facility_images/', null=True, blank=True)
+    image = models.ImageField(upload_to='facility_images/', null=True, blank=True, validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])])
     capacity_per_slot = models.IntegerField(default=1, help_text="Number of bookings allowed per slot")
 
     def __str__(self):
@@ -25,7 +26,7 @@ class FacilityPricing(models.Model):
 
 class GalleryImage(models.Model):
     title = models.CharField(max_length=100, blank=True)
-    image = models.ImageField(upload_to='gallery/')
+    image = models.ImageField(upload_to='gallery/', validators=[FileExtensionValidator(allowed_extensions=['jpg', 'jpeg', 'png', 'webp'])])
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -87,13 +88,15 @@ class FacilityClosure(models.Model):
     date = models.DateField()
     description = models.CharField(max_length=200, help_text="Reason for closure")
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE, null=True, blank=True, help_text="Leave blank to close ALL facilities")
+    slot = models.ForeignKey('TimeSlot', on_delete=models.CASCADE, null=True, blank=True, help_text="Leave blank to close whole day")
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('date', 'facility')
+        unique_together = ('date', 'facility', 'slot')
         ordering = ['date']
 
     def __str__(self):
         target = self.facility.facility_name if self.facility else "ALL Facilities"
-        return f"Closed: {target} on {self.date} ({self.description})"
+        slot_info = f" (Slot: {self.slot.start_time.strftime('%I:%M %p')})" if self.slot else " (Whole Day)"
+        return f"Closed: {target} on {self.date}{slot_info} - {self.description}"
 

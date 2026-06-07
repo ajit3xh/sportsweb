@@ -10,7 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,13 +23,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--cof2)7cl&w6^6!a#)s$+7i^(6jrff^0j858g@98(4g4hs4h^l'
+# SECURITY: Use environment variable for secret key
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure--cof2)7cl&w6^6!a#)s$+7i^(6jrff^0j858g@98(4g4hs4h^l'
+)
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+# SECURITY: Use environment variable for debug
+DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = []
+if not DEBUG and SECRET_KEY == 'django-insecure--cof2)7cl&w6^6!a#)s$+7i^(6jrff^0j858g@98(4g4hs4h^l':
+    raise ValueError("SECRET_KEY must be set in production")
+
+ALLOWED_HOSTS = os.environ.get(
+    'DJANGO_ALLOWED_HOSTS', 
+    'localhost,127.0.0.1,testserver'
+).split(',')
 
 
 # Application definition
@@ -37,13 +50,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # Third-party
+    'rest_framework',
+    'corsheaders',
+    # Local apps
     'users',
     'facilities',
     'payments',
+    'api',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -141,3 +160,102 @@ AUTHENTICATION_BACKENDS = [
     'users.backends.EmailBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+
+# ───────────────────────────────────────────
+# Django REST Framework
+# ───────────────────────────────────────────
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '100/day',
+        'user': '1000/day',
+        'login': '10/minute', # Custom throttle for auth views
+    }
+}
+
+
+# ───────────────────────────────────────────
+# CORS Configuration (for Next.js frontend)
+# ───────────────────────────────────────────
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+]
+
+
+# ───────────────────────────────────────────
+# Session Configuration
+# ───────────────────────────────────────────
+
+SESSION_COOKIE_AGE = 3600  # 1 hour timeout for security
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+
+# ───────────────────────────────────────────
+# Security Headers & Best Practices
+# ───────────────────────────────────────────
+
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
+X_FRAME_OPTIONS = 'DENY'
+# Prevent clickjacking and MIME-sniffing
+# In production, we enforce these if DEBUG=False
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000 # 1 year
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+
+# ───────────────────────────────────────────
+# Logging Configuration
+# ───────────────────────────────────────────
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+        'security': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'security.log',
+        },
+    },
+    'loggers': {
+        'django.security': {
+            'handlers': ['security', 'console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+        'api': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        }
+    },
+}

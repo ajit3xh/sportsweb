@@ -1,0 +1,346 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ═══════════════════════════════════════════
+   KATHUA INDOOR STADIUM — LUXURY IDENTITY
+   Inspired by: Rolex · F1 Paddock Club · Apple
+   ═══════════════════════════════════════════ */
+
+:root {
+  /* ── Core Palette ── */
+  --bg:            #0B0B0A;
+  --surface:       #151514;
+  --surface-2:     #1C1C1A;
+  --surface-3:     #242422;
+  --gold:          #C8A96B;
+  --gold-light:    #D9BE89;
+  --gold-deep:     #8A6F3E;
+  --gold-muted:    #4A3A20;
+  --text:          #F7F4EF;
+  --text-2:        #D4CFC7;
+  --muted:         #9B9487;
+  --muted-dark:    #6B6560;
+  --border:        rgba(200, 169, 107, 0.12);
+  --border-subtle: rgba(247, 244, 239, 0.06);
+  --border-strong: rgba(200, 169, 107, 0.28);
+
+  /* ── Semantic ── */
+  --success:  #4A8C5C;
+  --warning:  #C8A96B;
+  --error:    #B85C4A;
+
+  /* ── Aliases (keep backward compat) ── */
+  --primary:   #C8A96B;
+  --secondary: #8A6F3E;
+  --accent:    #D9BE89;
+  --glass-border: rgba(200, 169, 107, 0.12);
+  --glass-border-highlight: rgba(200, 169, 107, 0.22);
+  --glass-bg: rgba(21, 21, 20, 0.85);
+  --bg-secondary: #151514;
+  --bg-tertiary: #1C1C1A;
+  --muted-dark: #6B6560;
+
+  /* ── Shadows ── */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.4);
+  --shadow-md:  0 8px 24px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4);
+  --shadow-lg:  0 24px 64px rgba(0,0,0,0.7), 0 8px 24px rgba(0,0,0,0.5);
+  --shadow-gold: 0 8px 32px rgba(200, 169, 107, 0.15);
+  --depth-shadow-md: 0 8px 24px rgba(0,0,0,0.6);
+  --depth-shadow-lg: 0 24px 64px rgba(0,0,0,0.7);
+  --depth-shadow-glow: 0 8px 32px rgba(200, 169, 107, 0.15);
+
+  /* ── Motion ── */
+  --ease-luxury:    cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-reveal:    cubic-bezier(0.65, 0, 0.05, 1);
+  --ease-editorial: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-apple:     cubic-bezier(0.25, 1, 0.5, 1);
+  --duration-fast:   300ms;
+  --duration-normal: 600ms;
+  --duration-slow:   1000ms;
+  --duration-cinematic: 1600ms;
+
+  /* ── Spacing & Radius ── */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-2xl:  24px;
+  --radius-pill: 9999px;
+}
+
+/* Light mode — keep everything dark (this is always a dark design) */
+.light {
+  --bg:      #0B0B0A;
+  --surface: #151514;
+  --text:    #F7F4EF;
+  --muted:   #9B9487;
+}
+
+/* ── Global Architecture ─────────────────── */
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg);
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: 'Manrope', system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.65;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+}
+
+::selection {
+  background-color: rgba(200, 169, 107, 0.25);
+  color: var(--text);
+}
+
+/* ── Luxury Card ─────────────────────────── */
+
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  transition: border-color var(--duration-normal) var(--ease-luxury),
+              box-shadow var(--duration-normal) var(--ease-luxury);
+  position: relative;
+}
+
+.glass-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-gold);
+}
+
+/* Pill / badge */
+.glass-pill {
+  background: rgba(21, 21, 20, 0.9);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  backdrop-filter: blur(12px);
+}
+
+/* Sidebar */
+.glass-sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
+
+/* Nav */
+.glass-nav {
+  background: rgba(11, 11, 10, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* ── Animated Smooth Shine Glow ──────────────── */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+
+.running-glow-wrapper {
+  position: relative;
+  overflow: hidden;
+  padding: 1px;
+}
+
+.running-glow-wrapper::before {
+  content: "";
+  position: absolute;
+  inset: -100%;
+  background: conic-gradient(
+    from 90deg at 50% 50%,
+    transparent 0%,
+    transparent 30%,
+    rgba(200, 169, 107, 0.1) 40%,
+    rgba(200, 169, 107, 0.8) 50%,
+    rgba(200, 169, 107, 0.1) 60%,
+    transparent 70%,
+    transparent 100%
+  );
+  animation: spin-slow 5s linear infinite;
+  opacity: 0.7;
+  transition: opacity 0.5s ease;
+}
+
+.running-glow-wrapper:hover::before {
+  opacity: 1;
+}
+
+/* ── Gold Accent Text ─────────────────────── */
+
+.gradient-text {
+  color: var(--gold);
+}
+
+.gradient-text-warm {
+  color: var(--gold);
+}
+
+.gold-line {
+  display: block;
+  width: 40px;
+  height: 2px;
+  background: var(--gold);
+  margin-bottom: 1.5rem;
+}
+
+/* ── Inputs ──────────────────────────────── */
+
+.glass-input {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text);
+  padding: 14px 18px;
+  font-size: 15px;
+  font-family: 'Manrope', sans-serif;
+  transition: border-color var(--duration-fast) var(--ease-luxury);
+  width: 100%;
+  outline: none;
+}
+
+.glass-input::placeholder {
+  color: var(--muted-dark);
+}
+
+.glass-input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(200, 169, 107, 0.12);
+}
+
+/* ── Buttons ─────────────────────────────── */
+
+.btn-primary {
+  background: var(--gold);
+  color: #0B0B0A;
+  font-weight: 700;
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+  padding: 16px 36px;
+  border: none;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-luxury),
+              transform var(--duration-fast) var(--ease-luxury),
+              box-shadow var(--duration-fast) var(--ease-luxury);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  background: var(--gold-light);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-gold);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+  font-family: 'Manrope', sans-serif;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 13px;
+  border-radius: var(--radius-sm);
+  padding: 15px 36px;
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  transition: border-color var(--duration-fast) var(--ease-luxury),
+              color var(--duration-fast) var(--ease-luxury);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-secondary:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ── Section Architecture ────────────────── */
+
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-strong), transparent);
+  margin: 0;
+}
+
+.luxury-label {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+/* ── Mesh / Ambient BG ───────────────────── */
+
+.mesh-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 30% 60%, rgba(200,169,107,0.04), transparent),
+    radial-gradient(ellipse 50% 40% at 70% 30%, rgba(138,111,62,0.03), transparent);
+  pointer-events: none;
+}
+
+/* ── Scrollbar ───────────────────────────── */
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--gold-muted); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-deep); }
+
+/* ── Marquee ─────────────────────────────── */
+
+@keyframes marquee {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 50s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* ── Spotlight (kept for SpotlightCard compat) ── */
+.spotlight-wrapper {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ── Admin sidebar ───────────────────────── */
+.glass-sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+}
