@@ -55,7 +55,7 @@ export default function AdminDashboard() {
   const [editForm, setEditForm] = useState({ base_price: "", discount_percentage: "", is_active: true });
 
   const [showFacilityModal, setShowFacilityModal] = useState(false);
-  const [facilityForm, setFacilityForm] = useState({ facility_name: "", capacity_per_slot: 1, slot_duration_minutes: 40, is_active: true });
+  const [facilityForm, setFacilityForm] = useState({ facility_name: "", capacity_per_slot: 1, max_duration: 60, is_active: true });
 
   const [closures, setClosures] = useState<any[]>([]);
   const [showClosureModal, setShowClosureModal] = useState(false);
@@ -242,7 +242,7 @@ export default function AdminDashboard() {
       await adminApi.createFacility(facilityForm);
       setActionMsg({ msg: "Facility added successfully!", ok: true });
       setShowFacilityModal(false);
-      setFacilityForm({ facility_name: "", capacity_per_slot: 1, slot_duration_minutes: 40, is_active: true });
+      setFacilityForm({ facility_name: "", capacity_per_slot: 1, max_duration: 60, is_active: true });
       await fetchData();
     } catch (err: any) {
       setActionMsg({ msg: err.error || "Failed to add facility", ok: false });
@@ -613,7 +613,7 @@ export default function AdminDashboard() {
                       
                       // Calculate slots
                       const startHour = 6; const endHour = 22;
-                      const slotDuration = fac.slot_duration_minutes;
+                      const slotDuration = fac.max_duration || 60;
                       const totalMins = (endHour - startHour) * 60;
                       const numSlots = Math.floor(totalMins / slotDuration);
                       
@@ -870,7 +870,7 @@ export default function AdminDashboard() {
             {showFacilityModal && (
               <div className="glass-card p-6 border-[var(--gold)]/50">
                 <h3 className="font-serif text-2xl font-bold mb-4">Add New Facility</h3>
-                <form onSubmit={handleSaveFacility} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <form onSubmit={handleSaveFacility} className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
                   <div className="md:col-span-2">
                     <label className="block text-xs font-bold uppercase tracking-widest text-[var(--muted)] mb-2">Facility Name</label>
                     <input 
@@ -888,6 +888,16 @@ export default function AdminDashboard() {
                       type="number" 
                       value={facilityForm.capacity_per_slot} 
                       onChange={(e) => setFacilityForm({...facilityForm, capacity_per_slot: parseInt(e.target.value)})}
+                      className="glass-input w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold uppercase tracking-widest text-[var(--muted)] mb-2">Duration</label>
+                    <input 
+                      required 
+                      type="number" 
+                      value={facilityForm.max_duration} 
+                      onChange={(e) => setFacilityForm({...facilityForm, max_duration: parseInt(e.target.value)})}
                       className="glass-input w-full"
                     />
                   </div>
@@ -935,7 +945,7 @@ export default function AdminDashboard() {
                     </div>
                     <div className="flex justify-between border-b border-[var(--border)] pb-1">
                       <span>Slot Duration</span>
-                      <span className="text-[var(--text)] font-mono">{fac.slot_duration_minutes} min</span>
+                      <span className="text-[var(--text)] font-mono">{fac.max_duration} min</span>
                     </div>
                   </div>
                 </div>
