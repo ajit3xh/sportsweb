@@ -13,6 +13,16 @@
         <form method="post" class="mt-8 space-y-6">
             {% csrf_token %}
 
+            {% if demo_otp_mobile or demo_otp_aadhaar %}
+            <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mb-4">
+                <span class="text-xs uppercase tracking-wider text-blue-700 font-semibold block mb-2">Demo Mode OTPs</span>
+                <div class="flex justify-between text-sm text-blue-800 font-mono">
+                    <span>Mobile: {{ demo_otp_mobile }}</span>
+                    <span>Aadhaar: {{ demo_otp_aadhaar }}</span>
+                </div>
+            </div>
+            {% endif %}
+
             {% if messages %}
             <div class="mb-4">
                 {% for message in messages %}

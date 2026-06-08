@@ -159,7 +159,11 @@ def verify_registration_view(request):
         else:
             messages.error(request, "Invalid OTPs. Please check terminal and try again.")
             
-    return render(request, 'users/verify_registration.html')
+    context = {
+        'demo_otp_mobile': request.session.get('reg_otp_mobile'),
+        'demo_otp_aadhaar': request.session.get('reg_otp_aadhaar'),
+    }
+    return render(request, 'users/verify_registration.html', context)
 
 def login_view(request):
     """User Login"""
@@ -428,7 +432,11 @@ def verify_otp_view(request):
         else:
             messages.error(request, "Invalid OTPs. Please try again.")
             
-    return render(request, 'users/verify_otp.html')
+    context = {
+        'demo_otp_email': request.session.get('otp_email'),
+        'demo_otp_mobile': request.session.get('otp_mobile'),
+    }
+    return render(request, 'users/verify_otp.html', context)
 
 def reset_password_view(request):
     if not request.session.get('reset_verified') or 'reset_email' not in request.session:
