@@ -60,7 +60,11 @@ def book_facility(request, facility_id):
             
         # 1. Facility Closure Check
         from .models import FacilityClosure
-        closure = FacilityClosure.objects.filter(date=booking_date).filter(Q(facility=facility) | Q(facility__isnull=True)).first()
+        closure = FacilityClosure.objects.filter(date=booking_date).filter(
+            Q(facility=facility) | Q(facility__isnull=True)
+        ).filter(
+            Q(slot=slot) | Q(slot__isnull=True)
+        ).first()
         if closure:
             messages.error(request, f"Facility closed on {booking_date}: {closure.description}")
             return redirect('facilities:book', facility_id=facility.id)
@@ -106,10 +110,7 @@ def book_facility(request, facility_id):
             # Exception Logic: Allow if booking is < 1 hour from start
             # Combine date and time
             booking_datetime = datetime.combine(booking_date, slot.start_time)
-            # Make timezone aware if needed (assuming server is naive or consistent)
-            # If start_time is naive and timezone.now() is aware, we need consistency.
-            # Lets try mostly safe comparison:
-            current_time = datetime.now() # Naive
+            current_time = timezone.localtime(timezone.now()).replace(tzinfo=None)
             time_diff = booking_datetime - current_time
             
             # If booking is in future and diff > 1 hour -> BLOCK
