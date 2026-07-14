@@ -547,7 +547,7 @@ def book_facility_view(request, facility_id):
 
     if same_game_bookings.exists():
         booking_datetime = datetime.combine(booking_date, slot.start_time)
-        current_time = datetime.now()
+        current_time = timezone.localtime(timezone.now()).replace(tzinfo=None)
         time_diff = booking_datetime - current_time
         if time_diff.total_seconds() > 3600:
             return Response({
@@ -1116,9 +1116,15 @@ def admin_force_booking_view(request):
             facility=facility,
             slot=slot,
             booking_date=date_str,
-            status='active',
-            amount_paid=data.get('amount', 0),
-            payment_status='success'
+            status='active'
+        )
+        Payment.objects.create(
+            user=user,
+            booking=booking,
+            amount=data.get('amount', 0),
+            payment_type='single_game',
+            payment_status='success',
+            transaction_id=f"FORCE-{timezone.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:6]}"
         )
         return Response({'message': 'Booking forced successfully'}, status=status.HTTP_201_CREATED)
     except Exception as e:
